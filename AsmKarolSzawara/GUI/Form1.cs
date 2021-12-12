@@ -20,6 +20,8 @@ namespace AsmKarolSzawara
     {
         byte[] pixelTAB;
 
+        [DllImport("D:\\Asembler\\Projekt\\AsmKarolSzawara\\x64\\Debug\\DLLASM.dll", CallingConvention = CallingConvention.Cdecl)]
+        unsafe public static extern void SepiaASM(byte* image, int start, int stop, int tone, int depth);
         [DllImport("D:\\Asembler\\Projekt\\AsmKarolSzawara\\Debug\\DllC++.dll", CallingConvention = CallingConvention.Cdecl)]
         unsafe public static extern void sepiaC(Byte* image, int start, int stop, int tone, int depth);
         public Form1()
@@ -143,6 +145,21 @@ namespace AsmKarolSzawara
                 sepiaC(imgPTR, start, stop, toneV, depthV);
             }
         }
+        unsafe private void ASMFunction(object argum)
+        {
+            Array args = new object[5];
+            args = (Array)argum;
+            int start = (int)args.GetValue(0);
+            int stop = (int)args.GetValue(1);
+            byte[] table = (byte[])args.GetValue(2);
+            int toneV = (int)args.GetValue(3);
+            int depthV = (int)args.GetValue(4);
+            fixed (byte* imgPTR = &table[0])
+            {
+                SepiaASM(imgPTR, start, stop, toneV, depthV);
+            }
+
+        }
 
     void startDLL(int depth,int tone)
         {
@@ -150,7 +167,7 @@ namespace AsmKarolSzawara
             ThreadPool.SetMaxThreads(trackBar1.Value, trackBar1.Value);
             Array args = new object[5];
             args.SetValue(0, 0);
-            //args.SetValue(pixelTAB.Length, 1);
+            args.SetValue(pixelTAB.Length, 1);
             args.SetValue(pixelTAB, 2);
             args.SetValue(tone, 3);
             args.SetValue(depth, 4);
@@ -182,7 +199,7 @@ namespace AsmKarolSzawara
              }
             if (jezykASM.Checked == true)
             {
-                //funckja asm
+                ASMFunction(args);
             }
             mywatch.Stop();
             
